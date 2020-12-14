@@ -15,3 +15,21 @@ class Server:
         cherrypy.quickstart(MainView())
 
         DatabaseManager.dispose_engine()
+
+
+def WSGIApplication():
+    import sys
+    import atexit
+
+    sys.stdout = sys.stderr
+
+    cherrypy.config.update({"enviroment": "embedded"})
+
+    if cherrypy.__version__.startswith('3.0') and cherrypy.engine.state == 0:
+        cherrypy.engine.start(blocking=False)
+        atexit.register(cherrypy.engine.stop)
+    
+    application = cherrypy.Application(
+        MainView(), script_name='', config=None)
+
+    return application
