@@ -1,20 +1,21 @@
 import cherrypy
 
-from .model import DatabaseManager
+from .model import Base
 from .view_app import MainView
+from .cherrypy_plugins import SAPlugin, SATool
 
 
 class Server:
     def __init__(self):
-        DatabaseManager.to_sqlite("server.db")
-        pass
+        sa_plugin = SAPlugin(cherrypy.engine)
+        sa_plugin.to_sqlite()
+        sa_plugin.Base = Base
+        sa_plugin.subscribe()
+
+        cherrypy.tools.dbtool = SATool(sa_plugin)
 
     def run(self):
-        DatabaseManager.connect_database()
-
         cherrypy.quickstart(MainView())
-
-        DatabaseManager.dispose_engine()
 
 
 def WSGIApplication():
