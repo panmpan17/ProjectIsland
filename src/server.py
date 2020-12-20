@@ -1,4 +1,5 @@
 import cherrypy
+import os
 
 from .model import Base
 from .view_app import MainView
@@ -6,6 +7,15 @@ from .cherrypy_plugins import SAPlugin, SATool
 
 
 class Server:
+    CONFIG = {
+        "/static": {
+            "tools.staticdir.root": os.path.join(
+                os.path.dirname(__file__), "static"),
+            "tools.staticdir.on": True,
+            "tools.staticdir.dir": ".",
+        }
+    }
+
     def __init__(self):
         sa_plugin = SAPlugin(cherrypy.engine)
         sa_plugin.to_sqlite("server.db")
@@ -15,7 +25,7 @@ class Server:
         cherrypy.tools.dbtool = SATool(sa_plugin)
 
     def run(self):
-        cherrypy.quickstart(MainView())
+        cherrypy.quickstart(MainView(), "/", self.CONFIG)
     
     def wsgi_application(self):
         import sys

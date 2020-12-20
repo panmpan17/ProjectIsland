@@ -2,6 +2,7 @@
 # The plugin of sqlalchemy DB. Started when bus start...
 #
 import cherrypy
+import logging
 
 from cherrypy.process import plugins
 from sqlalchemy import create_engine, MetaData
@@ -58,8 +59,6 @@ class SAPlugin(plugins.SimplePlugin):
 
     def start(self):
         self.bus.log('Starting up DB access')
-        self.bus.log(self.db_uri)
-
         self.connect_database()
 
     @contextmanager
@@ -69,13 +68,13 @@ class SAPlugin(plugins.SimplePlugin):
         try:
             yield session
             session.commit()
-
-        except:
-            session.rollback()
-            raise
-
-        finally:
             session.close()
+
+        except Exception as e:
+            session.rollback()
+            session.close()
+            raise e
+            # logging.exception("Database error caught")
 
     def stop(self):
         self.bus.log('Stopping down DB access')
