@@ -54,6 +54,11 @@
     </style>
 </head>
 <body>
+    <a href="/login" data-bind="hidden: isLogined"><button class="yellow">我要登入</button></a>
+    <a href="javascript:;" data-bind="hidden: (isLogined() == false), click: Logout"><button class="red">我要登出</button></a>
+
+    <br><br>
+
     <input id="email" type="text" placeholder="Email">
     <button class="yellow" onclick="AddSubscription()">送出</button>
 
@@ -104,6 +109,7 @@
             var self = this;
 
             this.subscriptions = ko.observableArray([]);
+            this.isLogined = ko.observable(GetCookie("key") != "");
 
             this.visibleSubscriptions = ko.computed(function () {
                 return self.subscriptions().filter(function (location) {
@@ -122,6 +128,11 @@
                         }
                     }
                 });
+            }
+
+            this.Logout = function () {
+                DeleteCookie("key");
+                self.isLogined(false);
             }
         }
 

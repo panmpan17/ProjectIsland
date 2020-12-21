@@ -3,7 +3,7 @@ import os
 
 from .model import Base
 from .view_app import MainView
-from .cherrypy_plugins import SAPlugin, SATool
+from .cherrypy_plugins import SAPlugin, SATool, KeyMgrPlugin, KeyMgrTool
 
 
 class Server:
@@ -16,13 +16,17 @@ class Server:
         }
     }
 
-    def __init__(self):
+    def __init__(self, virtual_root_path):
         sa_plugin = SAPlugin(cherrypy.engine)
         sa_plugin.to_sqlite("server.db")
         sa_plugin.Base = Base
         sa_plugin.subscribe()
 
+        key_plugin = KeyMgrPlugin(cherrypy.engine, virtual_root_path)
+        key_plugin.subscribe()
+
         cherrypy.tools.dbtool = SATool(sa_plugin)
+        cherrypy.tools.keytool = KeyMgrTool(key_plugin)
 
     def run(self):
         cherrypy.quickstart(MainView(), "/", self.CONFIG)

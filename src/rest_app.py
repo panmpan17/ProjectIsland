@@ -71,6 +71,7 @@ class View:
         "tools.json_out.on": True,
         "tools.json_in.on": True,
         "tools.dbtool.on": True,
+        "tools.keytool.on": True,
         "tools.encode.on": True,
     }
 
@@ -135,6 +136,30 @@ class AccountView(View):
                 else:
                     raise HTTPError(400, "Repeated login_id")
 
-            return None
+                session_key = cherrypy.request.key.add_key(new_account.id, True)
+
+            return {"key": session_key}
+
+        raise HTTPError(404)
+
+    @cherrypy.expose
+    @jsonlize
+    def login(self, *args, method=None, data={}):
+        if method == POST:
+            if "login_id" not in data or "password" not in data:
+                raise HTTPError(400)
+
+            with cherrypy.request.db.session_scope() as session:
+                account = session.query(Account).filter(
+                    Account.login_id == data["login_id"]).first()
+
+                if account is None:
+                    raise HTTPError(400, "Field wrong")
+                elif account.password != data["password"]:
+                    raise HTTPError(400, "Field wrong")
+
+                session_key = cherrypy.request.key.add_key(account.id, True)
+
+            return {"key": session_key}
 
         raise HTTPError(404)
