@@ -28,3 +28,7 @@ class MainView(View):
     @cherrypy.expose
     def login(self):
         return self.render_html("login.html")
+    
+    @cherrypy.expose
+    def forum(self):
+        return self.render_html("forum.html")

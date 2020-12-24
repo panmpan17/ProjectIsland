@@ -2,7 +2,8 @@ import cherrypy
 import random
 import logging
 
-from .model import WebsiteNewsSubscription, Account, AdminRole
+from .model import WebsiteNewsSubscription, Account, AdminRole, ForumPost
+from .cherrypy_plugins import SessionKey
 from sqlalchemy.sql import select
 from sqlalchemy.exc import IntegrityError
 
@@ -75,11 +76,40 @@ class View:
         "tools.encode.on": True,
     }
 
+    @staticmethod
+    def create_db_data_from_parameter(db_class, params):
+        new_data = db_class()
+
+        for c in db_class.__table__.columns:
+            nullable = (c.default is not None) or c.nullable or c.primary_key
+
+            if c.name not in params:
+                if not nullable:
+                    raise HTTPError(400, f"Parameter missing {c.name}")
+            else:
+                setattr(new_data, c.name, params[c.name])
+
+        return new_data
+    
+    @staticmethod
+    def check_session_key(data):
+        if "key" not in data:
+            raise HTTPError(401, "Missing Parameter key")
+
+        key = cherrypy.request.key.get_key(data["key"])
+        if key == SessionKey.NOT_EXIST:
+            raise HTTPError(401, "Key is invalid")
+        if key == SessionKey.TIMEOUT:
+            raise HTTPError(401, "Key is invalid")
+
+        return key
+
 
 class RestMainView(View):
     def __init__(self):
         self.website_news_sub = WebsiteNewsSubscriptionView()
         self.account = AccountView()
+        self.forum = ForumView()
 
 
 class WebsiteNewsSubscriptionView(View):
@@ -117,15 +147,14 @@ class WebsiteNewsSubscriptionView(View):
 
 class AccountView(View):
     @cherrypy.expose
-    @jsonlize
     def index(self, *args, method=None, **kwargs):
-        raise HTTPError(404)
+        raise cherrypy.HTTPError(404)
 
     @cherrypy.expose
     @jsonlize
     def signup(self, *args, method=None, data={}):
         if method == POST:
-            new_account = Account.new_from_data(data)
+            new_account = self.create_db_data_from_parameter(Account, data)
 
             with cherrypy.request.db.session_scope() as session:
                 repeate_id_count = session.query(Account.id).filter(
@@ -162,4 +191,36 @@ class AccountView(View):
 
             return {"key": session_key}
 
+        raise HTTPError(404)
+
+
+class ForumView(View):
+    @cherrypy.expose
+    def index(self, *args, **kwargs):
+        raise cherrypy.HTTPError(404)
+
+    @cherrypy.expose
+    @jsonlize
+    def post(self, *args, method=None, data={}):
+        if method == GET:
+            posts = []
+            
+            with cherrypy.request.db.session_scope() as session:
+                for row in session.query(ForumPost):
+                    posts.append(row.jsonlize())
+
+            return {"data": posts}
+
+        elif method == POST:
+            key = self.check_session_key(data)
+            print(key)
+            return None
+
+            new_post = self.create_db_data_from_parameter(ForumPost, data)
+
+            with cherrypy.request.db.session_scope() as session:
+                session.add(new_post)
+
+            return None
+        
         raise HTTPError(404)

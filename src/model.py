@@ -1,7 +1,8 @@
 import os
 
 from sqlalchemy import Column, ForeignKey
-from sqlalchemy.types import String, Integer, DateTime, JSON, Text, Boolean
+from sqlalchemy.types import String, Integer, DateTime, JSON, Text, Boolean,\
+    BigInteger
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime, timedelta
 
@@ -9,12 +10,8 @@ from datetime import datetime, timedelta
 Base = declarative_base()
 
 
-def GMT(t, format_="%Y/%m/%d %H:%M:%S"):
-    try:
-        t += timedelta(hours=8)
-        return t.strftime(format_)
-    except Exception:
-        return None
+def FormatDatetime(t):
+    return t.timestamp()
 
 
 class WebsiteNewsSubscription(Base):
@@ -24,7 +21,7 @@ class WebsiteNewsSubscription(Base):
     email = Column(String)
     type = Column(Integer)
     ip = Column(String)
-    create_at = Column(DateTime, default=datetime.now)
+    create_at = Column(DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return f"<W.N.S {self.email} - {self.type}>"
@@ -36,7 +33,7 @@ class WebsiteNewsSubscription(Base):
                 "email": self.email,
                 "type": self.type,
                 "ip": self.ip,
-                "create_at": GMT(self.create_at),
+                "create_at": FormatDatetime(self.create_at),
             }
 
         else:
@@ -54,10 +51,7 @@ class Account(Base):
     email = Column(String)
     nickname = Column(String)
     realname = Column(String, nullable=True)
-    create_at = Column(DateTime, default=datetime.now)
-
-    def __repr__(self):
-        return f"<Account {self.id}, {self.login_id}, {self.email}, {self.nickname}>"
+    create_at = Column(DateTime, default=datetime.utcnow)
 
     @classmethod
     def new_from_data(cls, data):
@@ -74,6 +68,31 @@ class Account(Base):
 
         return new_account
 
+    def __repr__(self):
+        return f"<Account {self.id}, {self.login_id}, {self.email}, {self.nickname}>"
+    
+    def jsonlize(self, level=0):
+        if level == 0:
+            return {
+                "id": self.id,
+                "nickname": self.nickname,
+            }
+
+        elif level == 1:
+            return {
+                "id": self.id,
+                "login_id": self.login_id,
+                "google_auth": self.google_auth,
+                "facebook_auth": self.facebook_auth,
+                "email": self.email,
+                "nickname": self.nickname,
+                "realname": self.realname,
+                "create_at": FormatDatetime(self.create_at),
+            }
+
+        else:
+            return {}
+
 
 class AdminRole(Base):
     __tablename__ = "admin_role"
@@ -83,9 +102,38 @@ class AdminRole(Base):
     permission = Column(JSON, default={})
     note = Column(Text, default="")
     disabled = Column(Boolean, default=False)
-    create_at = Column(DateTime, default=datetime.now)
+    create_at = Column(DateTime, default=datetime.utcnow)
 
-# class ForumPost(Base):
-#     __tablename__ = "forum_post"
 
-#     id = Column(Integer, primary_key=True)
+class ForumPost(Base):
+    __tablename__ = "forum_post"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String)
+    content = Column(Text)
+    cover_img = Column(String, nullable=True)
+    topic = Column(Integer, nullable=True)
+    author_account_id = Column(Integer, ForeignKey(Account.id),
+        nullable=False)
+    views_count = Column(BigInteger, default=0)
+    status = Column(Integer, default=0)
+    create_at = Column(DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<ForumPost {self.id}, {self.title}, {self.topic}, {self.author_account_id}>"
+    
+    def jsonlize(self, level=0):
+        if level == 0:
+            return {
+                "id": self.id,
+                "title": self.title,
+                "content": self.content,
+                "cover_img": self.cover_img,
+                "topic": self.topic,
+                # "author": self.author_account_id,
+                "views_count": self.views_count,
+                "create_at": FormatDatetime(self.create_at),
+            }
+
+        else:
+            return {}
