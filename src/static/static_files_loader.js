@@ -1,6 +1,7 @@
 // Static files dummy timestamp
 var TIMESTAMP = null;
 var staticFilesQueue = [
+    "/static/theme.css",
     "/static/jspython.js",
     "/static/basic.js",
     "/static/login_stuff.js",

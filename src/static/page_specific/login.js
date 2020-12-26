@@ -1,3 +1,5 @@
+var RedirectPath = "/";
+
 function SubmitSignup(formEle) {
     var data = GetFormFieldsData(formEle);
 
@@ -10,7 +12,7 @@ function SubmitSignup(formEle) {
 
         Post("/rest/account/signup", data, function (msg) {
             StoreCookie("key", msg.key);
-            location.pathname = "/";
+            location = RedirectPath;
         }, function (err) {
             if (err.responseJSON.reason == "Repeated login_id") {
                 alert("帳號重複");
@@ -31,7 +33,7 @@ function SubmitLogin(formEle) {
 
         Post("/rest/account/login", data, function (msg) {
             StoreCookie("key", msg.key);
-            location.pathname = "/";
+            location = RedirectPath;
         }, function (err) {
             if (err.responseJSON.reason == "Field wrong") {
                 alert("帳號密碼錯誤");
@@ -44,8 +46,14 @@ function SubmitLogin(formEle) {
 }
 
 (function () {
+    var params = GetUrlParams();
+    if (params.back != undefined) {
+        console.log(params.back);
+        RedirectPath = params.back;
+    }
+
     if (GetCookie("key") != "") {
-        location.pathname = "/";
+        location = RedirectPath;
         return;
     }
 

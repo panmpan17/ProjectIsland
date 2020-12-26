@@ -1,17 +1,68 @@
 {% extends "base.html" %}
 {% block title %} / 論壇{% endblock %}
+{% block css %}
+<style>
+    #forum-posts {
+        margin: 10px 0;
+    }
+
+    #forum-posts article {
+        background: lightgray;
+        max-width: 700px;
+        border-radius: 5px;
+        padding-left: 8px;
+        padding-right: 8px;
+        padding-top: 4px;
+        padding-bottom: 13px;
+    }
+
+    #forum-posts article .title {
+        margin: 5px 0;
+        font-size: 20px;
+    }
+
+    #forum-posts article .content {
+        border-left: 2px solid rgb(180, 180, 180);
+        padding-left: 5px;
+        margin-bottom: 3px;
+    }
+
+    #forum-posts article .status {
+        /* float: right; */
+        color: gray;
+        font-size: 12px;
+        font-weight: 100;
+        text-align: right;
+    }
+
+    #forum-posts article .author-nickname {
+        color: cornflowerblue;
+        font-weight: 300;
+    }
+</style>
+{% endblock %}
 {% block content %}
 <main>
-    <form id="new-post" name="logined-element" action="javascript:;" onsubmit="return SubmitNewPost(this);">
-        <input field="title" type="text" placeholder="標題"><br>
-        <textarea field="content" cols="30" rows="10"></textarea>
-    
+    <form id="new-post" class="fancy" name="logined-element"
+        action="javascript:;" onsubmit="return SubmitNewPost(this);">
+        <input field="title" type="text" placeholder="標題">
+        <br>
+        <textarea field="content" cols="30" rows="10" placeholder="內文"></textarea>
+        <br>
         <input type="submit" value="送出">
     </form>
     
-    <div data-bind="foreach: visiblePosts">
-        <div data-bind="html: formated()"></div>
-    </div>
+    <section id="forum-posts" data-bind="foreach: visiblePosts">
+        <article>
+            <h4 class="title" data-bind="text: title"></h4>
+            <div class="content" data-bind="html: content"></div>
+            <div class="status">
+                <span class="author-nickname" data-bind="text: author.nickname"></span>
+                |
+                <span class="create-at" data-bind="text: formatedCreateAt"></span>
+            </div>
+        </article>
+    </section>
 </main>
 {% endblock %}
 {% block js %}

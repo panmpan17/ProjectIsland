@@ -1,3 +1,5 @@
+BASIC_JS_LOADED = true;
+
 // Form Handling
 function GetFormFieldsData(formEle) {
     var data = {};
@@ -115,3 +117,19 @@ function ParseDatetime(data) {
     var now = new Date();
     return new Date(data * 1000 - (now.getTimezoneOffset() * 60 * 1000))
 }
+
+function GetUrlParams() {
+    var paramsString = location.search.replace("?", "").split("&");
+    var params = {};
+
+    for (var paramString of paramsString) {
+        var index = paramString.indexOf("=");
+        params[paramString.substring(0, index)] = decodeURIComponent(paramString.substring(index + 1));
+    }
+
+    return params;
+}
+
+(function () {
+    document.dispatchEvent(new CustomEvent("basic_js_loaded"));
+})();

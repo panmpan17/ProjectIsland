@@ -4,6 +4,7 @@ from sqlalchemy import Column, ForeignKey
 from sqlalchemy.types import String, Integer, DateTime, JSON, Text, Boolean,\
     BigInteger
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 from datetime import datetime, timedelta
 
 
@@ -119,6 +120,8 @@ class ForumPost(Base):
     status = Column(Integer, default=0)
     create_at = Column(DateTime, default=datetime.utcnow)
 
+    author = relationship(Account)
+
     def __repr__(self):
         return f"<ForumPost {self.id}, {self.title}, {self.topic}, {self.author_account_id}>"
     
@@ -130,7 +133,7 @@ class ForumPost(Base):
                 "content": self.content,
                 "cover_img": self.cover_img,
                 "topic": self.topic,
-                # "author": self.author_account_id,
+                "author": self.author.jsonlize(),
                 "views_count": self.views_count,
                 "create_at": FormatDatetime(self.create_at),
             }

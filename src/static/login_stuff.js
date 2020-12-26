@@ -2,6 +2,14 @@ var LoginStatusListener = [];
 var accountInfo = null;
 
 
+function GoToLoginPage() {
+    if (location.pathname == "/login")
+        return;
+
+    location = "/login?back=" + encodeURI(location.pathname);
+}
+
+
 (function () {
 
     var keyCookie = "";

@@ -1,0 +1,44 @@
+form.fancy {
+    background: lightgray;
+    max-width: 400px;
+    border-radius: 5px;
+    padding: 8px;
+}
+
+form.fancy input[type=text],
+form.fancy input[type=password] {
+    width: 100%;
+    margin: 0;
+    border: 0;
+    height: 25px;
+    border-radius: 3px;
+    margin-bottom: 6px;
+}
+
+form.fancy input[type=submit] {
+    width: 100%;
+    margin: 0;
+    border: 0;
+    height: 30px;
+    border-radius: 3px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    /* font-family: monospace; */
+    background: #F5B803;
+    color: rgb(51, 50, 50);
+    font-weight: 700;
+}
+
+form.fancy input[type=submit]:hover {
+    background: #e2ab06;
+}
+
+form.fancy textarea {
+    width: 100% !important;
+    max-height: 600px !important;
+    margin: 0;
+    border: 0;
+    /* height: 25px; */
+    border-radius: 3px;
+    margin-bottom: 6px;
+}

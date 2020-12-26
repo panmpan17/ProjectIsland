@@ -63,6 +63,12 @@ function AppViewModel() {
     }
 }
 
-var viewmodel = new AppViewModel();
-ko.applyBindings(viewmodel);
-viewmodel.FetchAllWebsiteNewsSubscription();
+var viewmodel;
+function main() {
+    viewmodel = new AppViewModel();
+    ko.applyBindings(viewmodel);
+    viewmodel.FetchAllWebsiteNewsSubscription();
+}
+
+if (window.BASIC_JS_LOADED) main();
+else document.addEventListener("basic_js_loaded", main);

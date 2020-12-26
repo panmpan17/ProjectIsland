@@ -26,17 +26,17 @@ class MainView(View):
         self.rest = RestMainView()
 
     @cherrypy.expose
-    def index(self):
+    def index(self, **kwargs):
         return self.render_html("index.html")
     
     @cherrypy.expose
-    def login(self):
+    def login(self, **kwargs):
         return self.render_html("login.html")
     
     @cherrypy.expose
-    def forum(self):
+    def forum(self, *args, **kwargs):
         return self.render_html("forum.html")
 
     @cherrypy.expose
-    def timestamp(self):
+    def timestamp(self, **kwargs):
         return TIMESTAMP
