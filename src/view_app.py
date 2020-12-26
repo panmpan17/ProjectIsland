@@ -3,11 +3,15 @@ import jinja2
 import os.path
 
 from .rest_app import RestMainView
+from datetime import datetime
 
 
 jinja_env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.join(
         os.path.dirname(__file__), "templates")))
+
+
+TIMESTAMP = str(int(datetime.now().timestamp()))
 
 
 class View:
@@ -32,3 +36,7 @@ class MainView(View):
     @cherrypy.expose
     def forum(self):
         return self.render_html("forum.html")
+
+    @cherrypy.expose
+    def timestamp(self):
+        return TIMESTAMP

@@ -62,8 +62,8 @@ class SAPlugin(plugins.SimplePlugin):
         self.connect_database()
 
     @contextmanager
-    def session_scope(self):
-        session = self.Session()
+    def session_scope(self, **parameters):
+        session = self.Session(**parameters)
 
         try:
             yield session
@@ -74,7 +74,6 @@ class SAPlugin(plugins.SimplePlugin):
             session.rollback()
             session.close()
             raise e
-            # logging.exception("Database error caught")
 
     def stop(self):
         self.bus.log('Stopping down DB access')

@@ -104,6 +104,26 @@ class View:
 
         return key
 
+    @staticmethod
+    def check_user_login(data):
+        if "key" not in data:
+            raise HTTPError(401, "Missing Parameter key")
+
+        key = cherrypy.request.key.get_key(data["key"])
+        if key == SessionKey.NOT_EXIST:
+            raise HTTPError(401, "Key is invalid")
+        if key == SessionKey.TIMEOUT:
+            raise HTTPError(401, "Key is invalid")
+
+        with cherrypy.request.db.session_scope(expire_on_commit=False) as session:
+            account = session.query(Account).filter(
+                Account.id == key.user).first()
+            
+        if account is None:
+            raise HTTPError(400)
+
+        return account
+
 
 class RestMainView(View):
     def __init__(self):
@@ -149,6 +169,14 @@ class AccountView(View):
     @cherrypy.expose
     def index(self, *args, method=None, **kwargs):
         raise cherrypy.HTTPError(404)
+
+    @cherrypy.expose
+    @jsonlize
+    def me(self, *args, method=None, data={}):
+        if method == GET:
+            return self.check_user_login(data).jsonlize(level=1)
+
+        return None
 
     @cherrypy.expose
     @jsonlize
@@ -213,8 +241,8 @@ class ForumView(View):
 
         elif method == POST:
             key = self.check_session_key(data)
-            print(key)
-            return None
+
+            data["author_account_id"] = key.user
 
             new_post = self.create_db_data_from_parameter(ForumPost, data)
 

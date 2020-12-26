@@ -37,6 +37,17 @@ function FillFormFieldswithData(formEle, data) {
     }
 }
 
+function ClearFormField(formEle) {
+    for (var i = 0; i < formEle.children.length; i++) {
+        var ele = formEle.children[i];
+        var tagName = ele.tagName;
+
+        if (tagName == "INPUT" || tagName == "TEXTAREA") {
+            ele.value = "";
+        }
+    }
+}
+
 
 // Restful API
 function Get(url, data, success, error) {
@@ -100,35 +111,6 @@ function DeleteCookie(name, path = "/") {
 }
 
 // Date
-Date.prototype.strftime = function (format) {
-    str = format.replace("%Y", this.getFullYear());
-    var month = (this.getMonth() + 1).toString();
-    if (month.length == 1)
-        month = "0" + month;
-    str = str.replace("%m", month);
-
-    var date = this.getDate().toString();
-    if (date.length == 1)
-        date = "0" + date;
-    str = str.replace("%d", date);
-
-    var hours = this.getHours().toString();
-    if (hours.length == 1)
-        hours = "0" + hours;
-    str = str.replace("%H", hours);
-
-    var mintues = this.getMinutes().toString();
-    if (mintues.length == 1)
-        mintues = "0" + mintues;
-    str = str.replace("%M", mintues);
-
-    var seconds = this.getSeconds().toString();
-    if (seconds.length == 1)
-        seconds = "0" + seconds;
-    str = str.replace("%S", seconds);
-    return str;
-};
-
 function ParseDatetime(data) {
     var now = new Date();
     return new Date(data * 1000 - (now.getTimezoneOffset() * 60 * 1000))

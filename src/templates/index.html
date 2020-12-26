@@ -1,147 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IOC 創作者之島</title>
+{% extends "base.html" %}
+<!-- {% block title %}{% endblock %} -->
+{% block css %}
+<style>
+    input {
+        border-radius: 5px;
+        width: 300px;
+        height: 30px;
+        border: none;
+        padding: 5px;
+    }
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
-        integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js"></script>
-    <script src="/static/basic.js"></script>
+    button {
+        border-radius: 5px;
+        width: 100px;
+        height: 40px;
+        border: none;
+        font-weight: 700;
+        font-size: 14px;
+        font-family: monospace;
+        cursor: pointer;
 
-    <style>
-        body {
-            background: gray;
-        }
+    }
 
-        input {
-            border-radius: 5px;
-            width: 300px;
-            height: 30px;
-            border: none;
-            padding: 5px;
-        }
+    button.yellow {
+        background: #F5B803;
+        color: black;
+    }
 
-        button {
-            border-radius: 5px;
-            width: 100px;
-            height: 40px;
-            border: none;
-            font-weight: 700;
-            font-size: 14px;
-            font-family: monospace;
-            cursor: pointer;
+    button.red {
+        background: #C32126;
+        color: white;
+    }
 
-        }
+    /* #E71C44 */
 
-        button.yellow {
-            background: #F5B803;
-            color: black;
-        }
-        button.red {
-            background: #C32126;
-            color: white;
-        }
-        /* #E71C44 */
+    button.yellow:hover {
+        background: #e2ab06;
+    }
 
-        button.yellow:hover {
-            background: #e2ab06;
-        }
-        button.red:hover {
-            background: #aa1c21;
-        }
-    </style>
-</head>
-<body>
-    <a href="/login" data-bind="hidden: isLogined"><button class="yellow">我要登入</button></a>
-    <a href="javascript:;" data-bind="hidden: (isLogined() == false), click: Logout"><button class="red">我要登出</button></a>
-
-    <br>
-    <a href="/forum"><button class="yellow">論壇</button></a>
-
-    <br><br>
-
+    button.red:hover {
+        background: #aa1c21;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<main>
     <input id="email" type="text" placeholder="Email">
     <button class="yellow" onclick="AddSubscription()">送出</button>
-
+    
     <br><br>
     <button class="red" onclick="DeleteAllSubscription();">刪除所有</button>
-
+    
     <ul data-bind="foreach: visibleSubscriptions">
         <li data-bind="html: formated()"></li>
     </ul>
-    <script>
-        function AddSubscription() {
-            var email = document.getElementById("email").value;
-
-            if (email == "")
-                return;
-
-            Post("/rest/website_news_sub/", {email}, function (msg) {
-                document.getElementById("email").value = "";
-                viewmodel.FetchAllWebsiteNewsSubscription();
-            });
-        }
-
-        function DeleteAllSubscription() {
-            $.ajax({
-                url: location.origin + "/rest/website_news_sub/",
-                type: "DELETE",
-                success: function (msg) {
-                    viewmodel.FetchAllWebsiteNewsSubscription();
-                }
-            });
-        }
-
-        var WebsiteNewsSubscription = function (data) {
-            var self = this;
-
-            this.id = ko.observable(data.id);
-            this.email = ko.observable(data.email);
-            this.type = ko.observable(data.type);
-            this.ip = ko.observable(data.ip);
-            this.create_at = ko.observable(data.create_at);
-
-            this.formated = function () {
-                return `${self.id()}<br>${self.email()}<br>${self.type()}<br>${self.ip()}<br>${self.create_at()}`;
-            }
-        }
-
-        function AppViewModel() {
-            var self = this;
-
-            this.subscriptions = ko.observableArray([]);
-            this.isLogined = ko.observable(GetCookie("key") != "");
-
-            this.visibleSubscriptions = ko.computed(function () {
-                return self.subscriptions().filter(function (location) {
-                    return location;
-                });
-            }, this);
-
-            this.FetchAllWebsiteNewsSubscription = function () {
-                $.ajax({
-                    url: location.origin + "/rest/website_news_sub/",
-                    success: function (msg) {
-                        self.subscriptions.removeAll();
-
-                        for (row of msg.data) {
-                            self.subscriptions.push(new WebsiteNewsSubscription(row));
-                        }
-                    }
-                });
-            }
-
-            this.Logout = function () {
-                DeleteCookie("key");
-                self.isLogined(false);
-            }
-        }
-
-        var viewmodel = new AppViewModel();
-        ko.applyBindings(viewmodel);
-        viewmodel.FetchAllWebsiteNewsSubscription();
-    </script>
-</body>
-</html>
+</main>
+{% endblock %}
+{% block js %}
+<script>
+    AddAutoRenewStaticFiles([
+        "/static/page_specific/index.js",
+    ]);
+</script>
+{% endblock %}
