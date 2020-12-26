@@ -57,12 +57,12 @@ function SubmitLogin(formEle) {
         return;
     }
 
-    var user = {
-        login_id: "panmichael",
-        password: "panpan",
-        email: "panmpan@gmail.com",
-        nickname: "Michael",
-    };
-    FillFormFieldswithData(document.getElementById("signup"), user);
-    FillFormFieldswithData(document.getElementById("login"), user);
+    // var user = {
+    //     login_id: "panmichael",
+    //     password: "panpan",
+    //     email: "panmpan@gmail.com",
+    //     nickname: "Michael",
+    // };
+    // FillFormFieldswithData(document.getElementById("signup"), user);
+    // FillFormFieldswithData(document.getElementById("login"), user);
 })();
