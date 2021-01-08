@@ -44,9 +44,10 @@ function ClearFormField(formEle) {
         var ele = formEle.children[i];
         var tagName = ele.tagName;
 
-        if (tagName == "INPUT" || tagName == "TEXTAREA") {
+        if (tagName == "INPUT" && ele.type != "submit")
             ele.value = "";
-        }
+        if (tagName == "TEXTAREA")
+            ele.value = "";
     }
 }
 

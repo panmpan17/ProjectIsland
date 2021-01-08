@@ -5,6 +5,7 @@ var staticFilesQueue = [
     "/static/jspython.js",
     "/static/basic.js",
     "/static/login_stuff.js",
+    "/static/popup.js",
 ];
 var head = null;
 var body = null;

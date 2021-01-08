@@ -9,6 +9,30 @@ function GoToLoginPage() {
     location = "/login?back=" + encodeURI(location.pathname);
 }
 
+function TurnOnLoginElements(showLoginedElement, showUnloginedElement) {
+    for (var i = 0; i < document.styleSheets.length; i++) {
+        var styleSheet = document.styleSheets[i];
+        if (styleSheet.href == null) {
+            var loginCssChanges = false;
+            var unloginCssChanges = false;
+            for (var e = 0; e < styleSheet.cssRules.length; e++) {
+                var rule = styleSheet.cssRules[e];
+                if (rule.selectorText == "[name=\"logined-element\"]") {
+                    rule.style.display = showLoginedElement? "block": "none";
+                    loginCssChanges = true;
+                }
+                if (rule.selectorText == "[name=\"unlogined-element\"]") {
+                    rule.style.display = showUnloginedElement ? "block" : "none";
+                    unloginCssChanges = true;
+                }
+
+                if (loginCssChanges && unloginCssChanges)
+                    return;
+            }
+        }
+    }
+}
+
 
 (function () {
 
@@ -27,10 +51,12 @@ function GoToLoginPage() {
     }
 
     if (keyCookie == "") {
-        var loginedElements = document.getElementsByName("unlogined-element");
-        for (var ele of loginedElements) {
-            ele.style.display = "block";
-        }
+        // var loginedElements = document.getElementsByName("unlogined-element");
+        // for (var ele of loginedElements) {
+        //     ele.style.display = "block";
+        // }
+
+        TurnOnLoginElements(false, true);
     }
     else {
         $.ajax({
@@ -40,18 +66,22 @@ function GoToLoginPage() {
                 accountInfo = msg;
                 delete accountInfo.success;
 
-                var loginedElements = document.getElementsByName("logined-element");
-                for (var ele of loginedElements) {
-                    ele.style.display = "block";
-                }
+                // var loginedElements = document.getElementsByName("logined-element");
+                // for (var ele of loginedElements) {
+                //     ele.style.display = "block";
+                // }
+
+                TurnOnLoginElements(true, false);
             },
             error: function (error) {
                 document.cookie = "key=; expires= Thu, 01 Jan 1970 00:00:00 GMT";
 
-                var loginedElements = document.getElementsByName("unlogined-element");
-                for (var ele of loginedElements) {
-                    ele.style.display = "block";
-                }
+                // var loginedElements = document.getElementsByName("unlogined-element");
+                // for (var ele of loginedElements) {
+                //     ele.style.display = "block";
+                // }
+
+                TurnOnLoginElements(false, true);
             }
         });
     }

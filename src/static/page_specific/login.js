@@ -48,7 +48,6 @@ function SubmitLogin(formEle) {
 (function () {
     var params = GetUrlParams();
     if (params.back != undefined) {
-        console.log(params.back);
         RedirectPath = params.back;
     }
 

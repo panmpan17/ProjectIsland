@@ -57,10 +57,6 @@ function AppViewModel() {
             }
         });
     }
-
-    this.Logout = function () {
-        DeleteCookie("key");
-    }
 }
 
 var viewmodel;

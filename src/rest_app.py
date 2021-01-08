@@ -2,7 +2,8 @@ import cherrypy
 import random
 import logging
 
-from .model import WebsiteNewsSubscription, Account, AdminRole, ForumPost
+from .model import WebsiteNewsSubscription, Account, AdminRole, ForumPost,\
+    ForumReply
 from .cherrypy_plugins import SessionKey
 from sqlalchemy.sql import select
 from sqlalchemy.exc import IntegrityError
@@ -190,10 +191,11 @@ class AccountView(View):
                 
                 if repeate_id_count == 0:
                     session.add(new_account)
+                    session.commit()
+                    session_key = cherrypy.request.key.add_key(
+                        new_account.id, True)
                 else:
                     raise HTTPError(400, "Repeated login_id")
-
-                session_key = cherrypy.request.key.add_key(new_account.id, True)
 
             return {"key": session_key}
 
@@ -251,4 +253,34 @@ class ForumView(View):
 
             return None
         
+        raise HTTPError(404)
+
+    @cherrypy.expose
+    @jsonlize
+    def reply(self, *args, method=None, data={}):
+        if method == GET:
+            if "post_id" not in data:
+                raise HTTPError(400)
+
+            replies = []
+
+            with cherrypy.request.db.session_scope() as session:
+                for row in session.query(ForumReply).filter(
+                        ForumReply.post_id == data["post_id"]):
+                    replies.append(row.jsonlize())
+
+            return {"data": replies}
+        
+        elif method == POST:
+            key = self.check_session_key(data)
+
+            data["author_account_id"] = key.user
+
+            new_reply = self.create_db_data_from_parameter(ForumReply, data)
+
+            with cherrypy.request.db.session_scope() as session:
+                session.add(new_reply)
+            
+            return None
+
         raise HTTPError(404)

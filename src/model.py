@@ -115,7 +115,7 @@ class ForumPost(Base):
     cover_img = Column(String, nullable=True)
     topic = Column(Integer, nullable=True)
     author_account_id = Column(Integer, ForeignKey(Account.id),
-        nullable=False)
+                               nullable=False)
     views_count = Column(BigInteger, default=0)
     status = Column(Integer, default=0)
     create_at = Column(DateTime, default=datetime.utcnow)
@@ -124,7 +124,7 @@ class ForumPost(Base):
 
     def __repr__(self):
         return f"<ForumPost {self.id}, {self.title}, {self.topic}, {self.author_account_id}>"
-    
+
     def jsonlize(self, level=0):
         if level == 0:
             return {
@@ -135,6 +135,37 @@ class ForumPost(Base):
                 "topic": self.topic,
                 "author": self.author.jsonlize(),
                 "views_count": self.views_count,
+                "create_at": FormatDatetime(self.create_at),
+            }
+
+        else:
+            return {}
+
+
+class ForumReply(Base):
+    __tablename__ = "forum_reply"
+
+    id = Column(Integer, primary_key=True)
+    content = Column(Text)
+    author_account_id = Column(Integer, ForeignKey(Account.id),
+                               nullable=False)
+    post_id = Column(Integer, ForeignKey(ForumPost.id),
+                     nullable=False)
+    status = Column(Integer, default=0)
+    create_at = Column(DateTime, default=datetime.utcnow)
+
+    author = relationship(Account)
+    post = relationship(ForumPost)
+
+    def __repr__(self):
+        return f"<ForumPost {self.id}, {self.content}>"
+
+    def jsonlize(self, level=0):
+        if level == 0:
+            return {
+                "id": self.id,
+                "content": self.content,
+                "author": self.author.jsonlize(),
                 "create_at": FormatDatetime(self.create_at),
             }
 

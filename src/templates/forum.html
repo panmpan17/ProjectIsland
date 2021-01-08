@@ -14,6 +14,12 @@
         padding-right: 8px;
         padding-top: 4px;
         padding-bottom: 13px;
+        margin-bottom: 10px;
+        cursor: zoom-in;
+    }
+
+    #forum-posts article:hover {
+        background: rgb(190, 187, 187);
     }
 
     #forum-posts article .title {
@@ -28,16 +34,59 @@
     }
 
     #forum-posts article .status {
-        /* float: right; */
+        float: right;
         color: gray;
         font-size: 12px;
         font-weight: 100;
         text-align: right;
+        margin-right: 5px;
+        margin-top: 5px;
     }
 
     #forum-posts article .author-nickname {
         color: cornflowerblue;
         font-weight: 300;
+    }
+
+    #post-detail #title {
+        /* margin: 10px 0; */
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 24px;
+    }
+
+    #post-detail #content {
+        border-left: 2px solid rgb(180, 180, 180);
+        padding-left: 5px;
+        margin-bottom: 3px;
+        font-size: 16px;
+    }
+
+    #post-detail .status {
+        float: right;
+        color: gray;
+        font-size: 12px;
+        font-weight: 100;
+        text-align: right;
+        margin-right: 5px;
+        margin-top: 5px;
+    }
+
+    #post-detail .status .author-nickname {
+        color: cornflowerblue;
+        font-weight: 300;
+    }
+
+    #post-detail #replies {
+        padding: 10px 0;
+    }
+
+    #post-detail #replies article {
+        border-left: 2px solid rgb(180, 180, 180);
+        margin-left: 10px;
+        padding-left: 10px;
+        margin-bottom: 8px;
+        min-height: 35px;
     }
 </style>
 {% endblock %}
@@ -53,17 +102,62 @@
     </form>
     
     <section id="forum-posts" data-bind="foreach: visiblePosts">
-        <article>
-            <h4 class="title" data-bind="text: title"></h4>
-            <div class="content" data-bind="html: content"></div>
+        <article data-bind="click: OpenPost">
             <div class="status">
                 <span class="author-nickname" data-bind="text: author.nickname"></span>
-                |
+                <br>
                 <span class="create-at" data-bind="text: formatedCreateAt"></span>
+                <br>
+                <span data-bind="ifnot: hasComments">沒有回覆</span>
+                <span data-bind="if: hasComments"><span data-bind="text: commentsLength"></span> 則回覆</span>
             </div>
+
+            <h4 class="title" data-bind="text: title"></h4>
+            <div class="content" data-bind="html: content"></div>
         </article>
     </section>
 </main>
+{% endblock %}
+{% block floatcontent %}
+<div id="post-detail" class="popup-frame" data-bind="with: openedPost">
+    <div class="status">
+        <span class="author-nickname" data-bind="text: author.nickname"></span>
+        <br>
+        <span class="create-at" data-bind="text: formatedCreateAt"></span>
+    </div>
+    <h4 id="title" data-bind="text: title"></h4>
+    <div id="content" data-bind="html: content"></div>
+
+    <form class="fancy" name="logined-element" action="javascript:;" onsubmit="return SubmitNewReply(this);"
+          style="margin-top: 25px;">
+        <input field="post_id" type="hidden" data-bind="value: id">
+        <textarea field="content" cols="30" rows="2"></textarea>
+        <br>
+        <input type="submit" value="送出">
+    </form>
+
+    <div data-bind="ifnot: hasComments">
+        <h5>沒有回覆</h5>
+    </div>
+
+    <section id="replies" data-bind="if: hasComments, visible: hasComments">
+        <h5>回覆</h5>
+        <div data-bind="foreach: visibleComments">
+            <article>
+                <div class="status">
+                    <span class="author-nickname" data-bind="text: author.nickname"></span>
+                    <br>
+                    <span class="create-at" data-bind="text: formatedCreateAt"></span>
+                </div>
+
+                <span data-bind="html: content"></span>
+            </article>
+        </div>
+    </section>
+    <!-- <h4 id="post-title"></h4>
+    <div id="post-content"></div>
+    <section id="post-replies" ></section> -->
+</div>
 {% endblock %}
 {% block js %}
 <script>
